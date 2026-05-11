@@ -1,0 +1,92 @@
+
+```bash id="1"
+mkdir -p /root/code
+```
+
+* `mkdir` → make directory
+* `-p` → creates parent folders if they do not exist and avoids error if folder already exists
+* `/root/code` → folder path to create
+
+This creates the `code` directory inside `/root`.
+
+---
+
+```bash id="2"
+python3 -m venv /root/code/ml-env
+```
+
+* `python3` → runs Python 3
+* `-m` → runs a Python module as a program
+* `venv` → Python’s built-in virtual environment module
+* `/root/code/ml-env` → location and name of the virtual environment
+
+This creates an isolated Python environment called `ml-env`.
+
+Why use virtual environments?
+
+* Keeps project packages separate
+* Avoids conflicts with system Python packages
+* Each project can have different package versions
+
+---
+
+```bash id="3"
+source /root/code/ml-env/bin/activate
+```
+
+* `source` → runs a script in the current shell
+* `/root/code/ml-env/bin/activate` → activation script of the virtual environment
+
+This activates the virtual environment.
+
+After activation, your terminal usually changes like this:
+
+```bash id="4"
+(ml-env) root@controlplane:~#
+```
+
+This means packages will now install inside `ml-env` only.
+
+---
+
+```bash id="5"
+pip install numpy pandas scikit-learn matplotlib
+```
+
+* `pip` → Python package installer
+* `install` → installs packages
+* `numpy` → numerical computing library
+* `pandas` → data analysis library
+* `scikit-learn` → machine learning library
+* `matplotlib` → plotting/graph library
+
+This downloads and installs all required ML libraries into the virtual environment.
+
+---
+
+```bash id="6"
+pip freeze > /root/code/requirements.txt
+```
+
+* `pip freeze` → lists all installed Python packages with versions
+* `>` → redirects output into a file
+* `/root/code/requirements.txt` → output file name and location
+
+Example output inside the file:
+
+```text
+numpy==2.3.0
+pandas==2.2.2
+matplotlib==3.9.0
+scikit-learn==1.5.0
+```
+
+This file is useful because another user can install the exact same package versions using:
+
+```bash id="7"
+pip install -r requirements.txt
+```
+
+* `-r` means “read packages from file”
+
+This recreates the same environment on another machine.
