@@ -1,0 +1,223 @@
+# JupyterLab Configuration Troubleshooting Note
+
+## Objective
+
+Configure and start JupyterLab correctly with:
+
+* Port: `8888`
+* IP Address: `0.0.0.0`
+* Notebook Directory: `/root/notebooks/`
+
+---
+
+# Step 1 — Activate Virtual Environment
+
+```bash
+source /root/code/ml-env/bin/activate
+```
+
+### Purpose
+
+Activates the Python virtual environment where JupyterLab is installed.
+
+---
+
+# Step 2 — Start JupyterLab
+
+```bash
+jupyter lab --config=/root/code/jupyter_lab_config.py --allow-root --no-browser &
+```
+
+### Meaning of Options
+
+| Command Part   | Purpose                                |
+| -------------- | -------------------------------------- |
+| `jupyter lab`  | Starts JupyterLab                      |
+| `--config=...` | Uses custom config file                |
+| `--allow-root` | Allows running as root user            |
+| `--no-browser` | Prevents opening browser automatically |
+| `&`            | Runs process in background             |
+
+---
+
+# Problem 1 — Notebook Directory Missing
+
+## Error
+
+```text
+Bad config encountered during initialization:
+No such directory: '/root/notebooks'
+```
+
+## Reason
+
+Jupyter was configured to use:
+
+```python
+c.ServerApp.notebook_dir = '/root/notebooks/'
+```
+
+But the directory did not exist.
+
+---
+
+# Fix
+
+```bash
+mkdir -p /root/notebooks
+```
+
+### Explanation
+
+Creates the notebook directory.
+
+| Option  | Meaning                         |
+| ------- | ------------------------------- |
+| `mkdir` | Create directory                |
+| `-p`    | Create parent folders if needed |
+
+---
+
+# Problem 2 — Wrong IP Address
+
+## Original Setting
+
+```python
+c.ServerApp.ip = '127.0.0.1'
+```
+
+## Issue
+
+`127.0.0.1` means localhost only.
+
+The Jupyter UI button cannot access the server externally.
+
+---
+
+# Fix
+
+Changed to:
+
+```python
+c.ServerApp.ip = '0.0.0.0'
+```
+
+## Meaning
+
+`0.0.0.0` allows connections from all network interfaces.
+
+---
+
+# Problem 3 — Port Already in Use
+
+## Error
+
+```text
+The port 8888 is already in use
+```
+
+## Reason
+
+An old Jupyter process was already running on port `8888`.
+
+---
+
+# Fix
+
+```bash
+pkill -f jupyter
+```
+
+### Explanation
+
+| Part      | Meaning                 |
+| --------- | ----------------------- |
+| `pkill`   | Kill process            |
+| `-f`      | Match full process name |
+| `jupyter` | Kill Jupyter processes  |
+
+---
+
+# Restart JupyterLab
+
+```bash
+source /root/code/ml-env/bin/activate
+
+jupyter lab --config=/root/code/jupyter_lab_config.py --allow-root --no-browser &
+```
+
+---
+
+# Final Working Configuration
+
+```python
+c.ServerApp.notebook_dir = '/root/notebooks/'
+c.ServerApp.port = 8888
+c.ServerApp.ip = '0.0.0.0'
+```
+
+---
+
+# Final Successful Output
+
+```text
+Jupyter Server is running at:
+http://controlplane:8888/lab
+```
+
+This confirms:
+
+* JupyterLab started successfully
+* Port `8888` is working
+* Notebook directory exists
+* External access is enabled
+
+---
+
+# Warnings Seen
+
+## Deprecated Token Warning
+
+```text
+ServerApp.token config is deprecated
+```
+
+Meaning:
+Old configuration style is used.
+Not critical.
+
+---
+
+## Deprecated notebook_dir Warning
+
+```text
+notebook_dir is deprecated, use root_dir
+```
+
+Meaning:
+New Jupyter versions prefer:
+
+```python
+c.ServerApp.root_dir
+```
+
+instead of:
+
+```python
+c.ServerApp.notebook_dir
+```
+
+Still works correctly.
+
+---
+
+## Missing notebook Module Warning
+
+```text
+The module 'notebook' could not be found
+```
+
+Meaning:
+Classic Jupyter Notebook package is not installed.
+
+JupyterLab still works, so this warning can be ignored.
