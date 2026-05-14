@@ -1,0 +1,209 @@
+Complete Note — requirements.in, requirements.txt, uv pip compile
+1. What is this task?
+
+This task is about managing Python project dependencies correctly.
+
+In real projects, many Python libraries are needed.
+Example:
+
+numpy
+pandas
+scikit-learn
+mlflow
+
+The ML team wants:
+
+same package versions on every machine
+reproducible environments
+no dependency conflicts
+automatic dependency resolution
+
+That is why they use:
+
+uv
+requirements.in
+requirements.txt
+2. Main Idea of the Task
+
+You are given:
+
+requirements.in
+
+But it contains:
+
+wrong packages
+wrong versions
+invalid constraints
+
+Your job:
+
+Fix requirements.in
+
+Compile it into:
+
+requirements.txt
+Ensure all versions are pinned exactly using ==
+3. What is a Dependency?
+
+A dependency is a Python package your project needs.
+
+Example:
+
+import pandas
+import numpy
+
+This means the project depends on:
+
+pandas
+numpy
+4. What is requirements.in?
+
+requirements.in is the high-level dependency file.
+
+It contains only the packages developers directly want.
+
+Example:
+
+scikit-learn>=1.4
+mlflow>=2.0
+pandas>=2.0
+numpy>=1.26
+
+This means:
+
+install these packages
+any compatible version is acceptable
+5. Why Use Version Constraints?
+
+Example:
+
+numpy>=1.26
+
+Meaning:
+
+any version greater than or equal to 1.26
+
+Without constraints:
+
+numpy
+
+different machines may install different versions.
+
+That can break projects.
+
+6. What is requirements.txt?
+
+requirements.txt is the fully resolved lockfile.
+
+It contains:
+
+exact package versions
+transitive dependencies
+
+Example:
+
+numpy==2.2.1
+pandas==2.2.3
+scikit-learn==1.6.0
+mlflow==2.19.0
+
+Now every machine installs EXACTLY the same versions.
+
+7. What are Transitive Dependencies?
+
+When you install one package, it installs other packages automatically.
+
+Example:
+
+scikit-learn
+
+also installs:
+
+scipy
+joblib
+threadpoolctl
+
+These are called:
+
+Transitive dependencies
+
+You did not request them directly, but they are required.
+
+8. Why Teams Use Lockfiles
+
+Without lockfiles:
+
+Machine	Installed Version
+PC A	numpy 1.26
+PC B	numpy 2.0
+
+Project may work on one machine and fail on another.
+
+With lockfiles:
+
+Everyone gets identical versions.
+
+This improves:
+
+reproducibility
+debugging
+CI/CD reliability
+deployment consistency
+9. What is uv?
+
+uv is a modern Python package manager.
+
+It is:
+
+very fast
+alternative to pip
+handles dependency resolution
+creates lockfiles
+
+Developed by:
+Astral
+
+10. What Does This Command Do?
+uv pip compile requirements.in -o requirements.txt
+
+Breakdown:
+
+Part	Meaning
+uv	run uv package manager
+pip	pip-compatible commands
+compile	resolve dependencies
+requirements.in	input file
+-o	output file
+requirements.txt	generated lockfile
+11. Flow of the Whole Process
+requirements.in
+       ↓
+uv resolves dependencies
+       ↓
+requirements.txt generated
+12. What Happens Internally?
+
+When you run:
+
+uv pip compile requirements.in -o requirements.txt
+
+uv:
+
+Reads packages
+Checks PyPI
+Finds compatible versions
+Resolves dependency tree
+Detects conflicts
+Pins exact versions
+Writes final lockfile
+13. What is PyPI?
+
+PyPI = Python Package Index
+
+Official Python package repository.
+
+Website:
+
+PyPI
+
+All packages come from there.
