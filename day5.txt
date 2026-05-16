@@ -1,0 +1,355 @@
+What is a Makefile?
+
+A Makefile is a special file used by the make command to automate tasks in a project.
+
+Instead of typing many commands manually, developers define tasks once inside a Makefile and run them easily using:
+
+make target-name
+
+Example:
+
+make train
+
+runs all commands inside the train target.
+
+Why use a Makefile?
+
+In ML/Data projects, many repeated tasks exist:
+
+Creating virtual environments
+Installing packages
+Processing data
+Training models
+Running tests
+Cleaning generated files
+
+A Makefile automates all of them.
+
+Benefits:
+
+Faster workflow
+Standardized commands for the whole team
+Reduces mistakes
+Easier CI/CD automation
+Structure of a Makefile
+
+Basic syntax:
+
+target:
+	command
+
+Example:
+
+train:
+	python train.py
+
+Important:
+
+Commands MUST start with a TAB
+Spaces will cause errors
+Full Makefile
+.PHONY: setup data train test clean all
+
+setup:
+	python3 -m venv mlops-venv
+	mlops-venv/bin/pip install -r requirements.txt
+	mlops-venv/bin/pip install pytest
+
+data:
+	mlops-venv/bin/python src/data/process_data.py
+
+train:
+	mlops-venv/bin/python src/models/train.py
+
+test:
+	mlops-venv/bin/python -m pytest tests/
+
+clean:
+	find . -type d -name "__pycache__" -exec rm -rf {} +
+	rm -rf .pytest_cache
+	rm -rf models/*
+
+all: setup data train test
+Explanation of Each Part
+1. .PHONY
+.PHONY: setup data train test clean all
+What is .PHONY?
+
+.PHONY tells Make:
+
+“These are task names, NOT actual files.”
+
+Normally, Make checks whether a file with the same name exists.
+
+Example:
+If a file named train exists, Make may think the target is already completed and skip it.
+
+.PHONY prevents that issue.
+
+2. setup Target
+setup:
+	python3 -m venv mlops-venv
+	mlops-venv/bin/pip install -r requirements.txt
+	mlops-venv/bin/pip install pytest
+Purpose
+
+Prepares the Python environment.
+
+Line 1
+python3 -m venv mlops-venv
+
+Creates a virtual environment named mlops-venv.
+
+What is a virtual environment?
+
+An isolated Python environment for the project.
+
+Benefits:
+
+Separate package versions
+Avoids system conflicts
+Cleaner dependency management
+
+After creation:
+
+mlops-venv/
+
+contains:
+
+Python executable
+pip
+installed packages
+Line 2
+mlops-venv/bin/pip install -r requirements.txt
+
+Installs dependencies from:
+
+requirements.txt
+
+Example requirements:
+
+pandas
+numpy
+scikit-learn
+mlflow
+
+-r means:
+
+Read packages from file
+
+Line 3
+mlops-venv/bin/pip install pytest
+
+Installs pytest.
+
+Why needed?
+
+Tests use pytest:
+
+pytest tests/
+
+Without installation:
+
+No module named pytest
+
+error occurs.
+
+3. data Target
+data:
+	mlops-venv/bin/python src/data/process_data.py
+Purpose
+
+Runs the data preprocessing script.
+
+Command
+mlops-venv/bin/python src/data/process_data.py
+
+Uses Python inside the virtual environment.
+
+Script location:
+
+src/data/process_data.py
+
+Possible tasks:
+
+Cleaning data
+Removing null values
+Feature engineering
+Splitting datasets
+4. train Target
+train:
+	mlops-venv/bin/python src/models/train.py
+Purpose
+
+Trains the ML model.
+
+Command
+mlops-venv/bin/python src/models/train.py
+
+Possible tasks:
+
+Load processed data
+Train model
+Save trained model into models/
+
+Example outputs:
+
+.pkl
+.joblib
+.onnx
+5. test Target
+test:
+	mlops-venv/bin/python -m pytest tests/
+Purpose
+
+Runs automated tests.
+
+Why python -m pytest?
+
+Safer than:
+
+pytest tests/
+
+because sometimes pytest executable is missing from:
+
+mlops-venv/bin/
+
+Using:
+
+python -m pytest
+
+runs pytest as a Python module.
+
+tests/
+
+Folder containing test files.
+
+Example:
+
+tests/test_smoke.py
+
+Possible tests:
+
+Data validation
+Model accuracy
+Function correctness
+6. clean Target
+clean:
+	find . -type d -name "__pycache__" -exec rm -rf {} +
+	rm -rf .pytest_cache
+	rm -rf models/*
+Purpose
+
+Removes generated temporary files.
+
+Line 1
+find . -type d -name "__pycache__" -exec rm -rf {} +
+What is __pycache__?
+
+Python stores compiled bytecode files there.
+
+Example:
+
+__pycache__/
+
+Contains:
+
+file.cpython-312.pyc
+
+These are temporary files.
+
+Command breakdown
+Part	Meaning
+find .	Search current directory
+-type d	Search directories
+-name "__pycache__"	Find cache folders
+-exec rm -rf {} +	Delete them
+Line 2
+rm -rf .pytest_cache
+
+Deletes pytest cache.
+
+Created automatically after tests.
+
+Line 3
+rm -rf models/*
+
+Deletes contents inside:
+
+models/
+
+Useful because training creates model files.
+
+7. all Target
+all: setup data train test
+Purpose
+
+Runs all important tasks in sequence.
+
+Equivalent to:
+
+make setup
+make data
+make train
+make test
+Execution Order
+
+When you run:
+
+make all
+
+Make executes:
+
+setup
+data
+train
+test
+Important Makefile Rules
+1. Use TABs, NOT spaces
+
+Correct:
+
+train:
+	python train.py
+
+Wrong:
+
+train:
+    python train.py
+
+(spaces)
+
+Error:
+
+missing separator
+2. .PHONY prevents conflicts
+
+Without .PHONY, existing files may stop targets from running.
+
+3. Why use virtual environment executables?
+
+Instead of:
+
+python
+pip
+
+we use:
+
+mlops-venv/bin/python
+mlops-venv/bin/pip
+
+This guarantees:
+
+Correct package versions
+Isolated environment
+Consistent behavior across machines
+Typical Workflow
+make setup
+make data
+make train
+make test
+make clean
+
+or simply:
+
+make all
